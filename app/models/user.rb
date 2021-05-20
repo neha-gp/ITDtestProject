@@ -25,9 +25,14 @@ class User < ApplicationRecord
   end
 
     def self.import(file)
-    	CSV.foreach(file.path, headers: true) do |row|
-    		user_hash = row.to_hash
-    		user = find_or_create_by!(first_name: user_hash['first_name'], last_name: user_hash['last_name'], email: user_hash['email'], contact_no: user_hash['contact_no'], address: user_hash['address'])
-       end
+    CSV.foreach(file.path, headers: true) do |row|
+    user_hash = row.to_hash
+    user = User.find_by(email: user_hash['email'])
+      if user.present?
+         user.update(first_name: user_hash['first_name'], last_name: user_hash['last_name'], email: user_hash['email'], contact_no: user_hash['contact_no'], address: user_hash['address'])
+      else
+         User.create!(first_name: user_hash['first_name'], last_name: user_hash['last_name'], email: user_hash['email'], contact_no: user_hash['contact_no'], address: user_hash['address'])
+      end
     end
+  end
 end
